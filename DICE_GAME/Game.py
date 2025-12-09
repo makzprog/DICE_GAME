@@ -1,44 +1,66 @@
+import random
 
-class DiceGame:
-    def __init__(self, sides=6):
-        self.sides = sides
+class Dice:
+    def __init__(self, dices=2):
+        if dices < 1:
+            raise ValueError("Please choose at least 1 die")
+        self._dices = dices
+        self._sides = 6
     
-    # Ask user for how many dices they want to roll
-    def amount_dices(self):
-        num_dices = input("How many dices do you want to roll? ")
+    @property
+    def dices(self):
+        return self._dices    
+    
+    @dices.setter    
+    def dices(self, value):
+        if value < 1:
+            raise ValueError("Please choose at least 1 die")
+        self._dices = value
         
-        if num_dices.isdigit() and int(num_dices) > 0:
-            num_dices = int(num_dices)
-            return num_dices
+    @property
+    def sides(self):
+        return self._sides
+
+    def roll(self):
+        return tuple(random.randint(1, self._sides) for _ in range(self._dices))
+
+class Game:
+    def __init__(self, dice):
+        self.dice = dice
+        self.count = 0
+        self.sum_total = 0
+
+    def get_user_input(self):
+        user_input = input("How many dices do you want to roll? ")
+        if user_input.isdigit() and int(user_input) > 0:
+            self.dice.dices = int(user_input)
         else:
-            print("Please enter a valid number.")
-            return self.amount_dices()
-    
-    # Roll the dices and display the result     
-    def roll_dices(self, num_dices):
-        count = 0
-        sum_totals = 0
-        isActive = True
-        while isActive:
-            ask_user = input("Roll the dices? (y/n): ")
-            if ask_user == 'y' or ask_user == 'Y':
-                self.roll = tuple(random.randint(1, self.sides) for _ in range(num_dices))
-                count += 1
-                sum_totals += sum(self.roll)
-                print("You rolled:", self.roll, " | Total:", sum_totals, " | Times Rolled:", count)
-                sum_totals = 0
-            elif ask_user == 'n' or ask_user == 'N':
-                isActive = False
+            raise ValueError("Please choose at least 1 die")
+
+    def roll_dices(self):
+        while True:
+            ask_user = input("Roll the dices? (y/n): ").lower()
+            if ask_user == 'y':
+                current_roll = self.dice.roll()
+                self.count += 1
+                self.sum_total += sum(current_roll)
+                print("You rolled:", current_roll, 
+                      "| Total so far:", self.sum_total, 
+                      "| Times Rolled:", self.count)
+            elif ask_user == 'n':
                 print("Game Over")
-                print("Total rolls:", count)
+                print("Total rolls:", self.count)
                 break
             else:
-                if ask_user != 'y' and ask_user != 'Y':
-                    print("Invalid input. Please enter 'y' or 'n'.")
-        return self.roll
-
-# start the program
+                print("Invalid input. Please enter 'y' or 'n'.")
+        return "Thanks for playing!"
+    
 if __name__ == "__main__":
-    start_game = DiceGame()
-    specify_dices = start_game.amount_dices()
-    rolling_dices = start_game.roll_dices(specify_dices)
+    dice = Dice()
+    game = Game(dice)
+    game.get_user_input()
+    print(game.roll_dices())
+
+
+
+
