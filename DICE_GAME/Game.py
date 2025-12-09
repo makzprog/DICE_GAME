@@ -1,4 +1,3 @@
-import random
 
 class DiceGame:
     def __init__(self, sides=6):
