@@ -1,5 +1,6 @@
 import random
 
+ 
 class Dice:
     def __init__(self, dices=2):
         if dices < 1:
@@ -23,6 +24,7 @@ class Dice:
 
     def roll(self):
         return tuple(random.randint(1, self._sides) for _ in range(self._dices))
+
 
 class Game:
     def __init__(self, dice):
@@ -54,6 +56,7 @@ class Game:
             else:
                 print("Invalid input. Please enter 'y' or 'n'.")
         return "Thanks for playing!"
+
     
 if __name__ == "__main__":
     dice = Dice()
