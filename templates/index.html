@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dice Game</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; background: #f0f2f5; }
+        .game-container { background: white; padding: 2rem; border-radius: 15px; display: inline-block; margin-top: 50px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        #dice-display { font-size: 80px; margin: 20px; color: #4a90e2; }
+        button { padding: 10px 25px; font-size: 18px; cursor: pointer; background: #4a90e2; color: white; border: none; border-radius: 5px; }
+        button:hover { background: #357abd; }
+    </style>
+</head>
+<body>
+
+    <div class="game-container">
+        <h1>Dice Game</h1>
+        <div id="dice-display">🎲 🎲</div>
+        <h2 id="total-score">Total Score: 0</h2>
+        <p id="roll-count">Rolls: 0</p>
+        <button onclick="rollDice()">Roll Dice</button>
+        <button onclick="resetGame()" style="background: #e74c3c; margin-left: 10px;">Reset Game</button>
+    </div>
+
+
+    
+
+
+    <script>
+        async function rollDice() {
+            // Talk to our Python Backend
+            const response = await fetch('/roll', { method: 'POST' });
+            const data = await response.json();
+
+            // Update the HTML with the Python data
+            document.getElementById('total-score').innerText = `Total Score: ${data.total}`;
+            document.getElementById('roll-count').innerText = `Rolls: ${data.count}`;
+            
+            // Map numbers to symbols (Simplified UI logic)
+            const symbols = {1:'⚀', 2:'⚁', 3:'⚂', 4:'⚃', 5:'⚄', 6:'⚅'};
+            document.getElementById('dice-display').innerText = data.roll.map(n => symbols[n]).join(' ');
+        }
+
+        async function resetGame() {
+            const response = await fetch('/reset', { method: 'POST' });
+            const data = await response.json();
+
+            // Update the UI back to zero
+            document.getElementById('total-score').innerText = `Total Score: ${data.total}`;
+            document.getElementById('roll-count').innerText = `Rolls: ${data.count}`;
+            document.getElementById('dice-display').innerText = "🎲 🎲";
+        }
+    </script>
+</body>
+</html>
