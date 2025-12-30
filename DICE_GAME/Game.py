@@ -1,69 +1,96 @@
 import random
+from typing import Tuple, List
 
- 
 class Dice:
-    def __init__(self, dices=2):
-        if dices < 1:
-            raise ValueError("Please choose at least 1 die")
-        self._dices = dices
-        self._sides = 6
-    
-    @property
-    def dices(self):
-        return self._dices    
-    
-    @dices.setter    
-    def dices(self, value):
-        if value < 1:
-            raise ValueError("Please choose at least 1 die")
-        self._dices = value
+    """
+    Responsible ONLY for rolling and maintaining dice configuration
+    """
+    def __init__(self, num_dice: int = 2, sides: int = 6):
+        if num_dice < 1:
+            raise ValueError("Must have at least one die")
+        self._num_dice = num_dice
+        self._sides = sides
         
     @property
-    def sides(self):
-        return self._sides
-
-    def roll(self):
-        return tuple(random.randint(1, self._sides) for _ in range(self._dices))
-
-
-class Game:
-    def __init__(self, dice):
-        self.dice = dice
-        self.count = 0
-        self.sum_total = 0
-
-    def get_user_input(self):
-        user_input = input("How many dices do you want to roll? ")
-        if user_input.isdigit() and int(user_input) > 0:
-            self.dice.dices = int(user_input)
-        else:
-            raise ValueError("Please choose at least 1 die")
-
-    def roll_dices(self):
-        while True:
-            ask_user = input("Roll the dices? (y/n): ").lower()
-            if ask_user == 'y':
-                current_roll = self.dice.roll()
-                self.count += 1
-                self.sum_total += sum(current_roll)
-                print("You rolled:", current_roll, 
-                      "| Total so far:", self.sum_total, 
-                      "| Times Rolled:", self.count)
-            elif ask_user == 'n':
-                print("Game Over")
-                print("Total rolls:", self.count)
-                break
-            else:
-                print("Invalid input. Please enter 'y' or 'n'.")
-        return "Thanks for playing!"
-
+    def num_dice(self) -> int:
+        return self._num_dice
     
+    def roll(self) -> Tuple[int, ...]:
+        """Generates random numbers based on configuration."""
+        return tuple(random.randint(1, self._sides) for _ in range(self._num_dice))
+    
+class GameEngine:
+    """
+    Responsible ONLY for Game State and Rules.
+    """
+    def __init__(self, dice: Dice):
+        self.dice = dice
+        self.roll_cout = 0
+        self.total_score = 0
+        self.history: List[Tuple[int, ...]] = []
+        
+    def play_round(self) -> Tuple[int, ...]:
+        """
+        Logic for executing a single round
+        """
+        current_roll = self.dice.roll()
+    
+        self.roll_cout += 1
+        self.total_score += sum(current_roll)
+        self.history.append(current_roll)
+        
+        return current_roll
+    
+    def get_states(self) -> dict:
+        return {
+            "rolls": self.roll_cout,
+            "total": self.total_score
+        }
+    
+
+# --- The "Interface" Layer ---
+# The logic is above, the UI is below.
+# Moving this game to a Website, amounts to only replacing 
+# the code below. The classes above would remain untouched.
+
+def get_valid_integer(prompt: str) -> int:
+    """Helper function to handle input validation"""
+    while True:
+        user_input = input(prompt)
+        if user_input.isdigit() and int(user_input) > 0:
+            return int(user_input)
+        print("Invalid input. Please enter a positive number.")
+        
+def main():
+    print("--- Welcome to the Dice Game ---")
+    
+    # Configuration Phase
+    num_dice = get_valid_integer("How many dice do you want to roll? ")
+    
+    # Dependency Injection
+    dice = Dice(num_dice=num_dice)
+    game = GameEngine(dice=dice)
+    
+    # Game Loop
+    while True:
+        command = input("Roll the dice? (y/n): ").lower()
+        
+        if command == 'y':
+            roll_result = game.play_round()
+            stats = game.get_states()
+        
+            print(f"You rolled: {roll_result} | Total: {stats['total']} | Rounds: {stats['rolls']}")
+        
+        elif command == 'n':
+            stats = game.get_states()
+            print("Game Over")
+            print(f"You rolled: {roll_result} | Total: {stats['total']} | Rounds: {stats['rolls']}")
+            print("Thanks for playing!")
+            break
+        
+        else:
+            print("Invalid input. Please enter 'y' or 'n'.")
+
 if __name__ == "__main__":
-    dice = Dice()
-    game = Game(dice)
-    game.get_user_input()
-    print(game.roll_dices())
-
-
-
-
+    main()
+    
