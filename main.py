@@ -1,18 +1,10 @@
-from game_logic import Dice, GameEngine
+from game_logic import GameEngine, Dice
 
-def get_valid_integer(prompt: str) -> int:
-    """Helper function to handle input validation"""
-    while True:
-        user_input = input(prompt)
-        if user_input.isdigit() and int(user_input) > 0:
-            return int(user_input)
-        print("Invalid input. Please enter a positive number.")
-        
 def main():
     print("--- Welcome to the Dice Game ---")
     
     # Configuration Phase
-    num_dice = get_valid_integer("How many dice do you want to roll? ")
+    num_dice = GameEngine.get_valid_die_input("How many dice do you want to roll? ")
     
     # Dependency Injection
     dice = Dice(num_dice=num_dice)
@@ -31,7 +23,7 @@ def main():
         elif command == 'n':
             stats = game.get_stats()
             print("Game Over")
-            print(f"You rolled: {roll_result} | Total: {stats['total']} | Rounds: {stats['rolls']}")
+            print(f"You rolled: {roll_result} | Total: {stats['total']} | Rounds: {stats['rolls']} in your last roll")
             print("Thanks for playing!")
             break
         

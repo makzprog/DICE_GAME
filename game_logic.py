@@ -1,7 +1,6 @@
 import random
 from typing import Tuple, List
 
-
 class Dice:
     """
     Responsible ONLY for rolling and maintaining dice configuration
@@ -54,3 +53,12 @@ class GameEngine:
         self.roll_count = 0
         self.total_score = 0
         self.history = []
+        
+    @staticmethod
+    def get_valid_die_input(prompt: str) -> int:
+        """Helper function to handle input validation for number of die"""
+        while True:
+            user_input = input(prompt)
+            if user_input.isdigit() and int(user_input) > 0:
+                return int(user_input)
+            print("Invalid input. Please enter a positive number.")
